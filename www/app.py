@@ -14,7 +14,7 @@ def setup_logging(default_path = "conf/logging.json",default_level = logging.INF
         logging.basicConfig(level = default_level)
 
 
-## 定义服务器响应请求的的返回为 "Awesome Website"
+## 定义服务器响应请求的的返回为 Kaguyahime"
 async def index(request):
     return web.Response(body=b'<h1>Kaguyahime</h1>', content_type='text/html')
 

@@ -33,10 +33,11 @@
 		}
 	},
 	"loggers": {
-		"my_module": {
-			"level": "ERROR",
+		"OTHERS": {
+			"level": "INFO",
 			"handlers": [
-				"info_file_handler"
+				"info_file_handler",
+				"error_file_handler"
 			],
 			"propagate": "no"
 		}
