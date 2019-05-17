@@ -1,6 +1,6 @@
 import asyncio, logging, aiomysql
 
-logger = logging.getLogger("ORM")
+orm_logger = logging.getLogger("ORM")
 
 
 def log(sql, args=()):
@@ -8,7 +8,7 @@ def log(sql, args=()):
         sql = sql + '()'
     else:
         sql = sql % args
-    logger.info('SQL: %s' % sql)
+    orm_logger.info('SQL: %s' % sql)
 
 
 class Field(object):
@@ -53,7 +53,7 @@ class TextField(Field):
 
 
 async def create_pool(loop, **kw):  #创建一个全局的连接池
-    logger.info('create database connection pool...')
+    orm_logger.info('create database connection pool...')
     global __pool
     __pool = await aiomysql.create_pool(
         host=kw.get('host', 'localhost'),
@@ -79,7 +79,7 @@ async def select(sql, args, size=None):
         else:
             rs = await cur.fetchall()
         await cur.close()
-        logger.info('rows returned: %s' % len(rs))
+        orm_logger.info('rows returned: %s' % len(rs))
         return rs
 
 
@@ -110,14 +110,14 @@ class ModelMetaclass(type):
             return type.__new__(cls, name, bases, attrs)
         # 获取table名称:
         tableName = attrs.get('__table__', None) or name
-        logger.info('found model: %s (table: %s)' % (name, tableName))
+        orm_logger.info('found model: %s (table: %s)' % (name, tableName))
         # 获取所有的Field和主键名:
         mappings = dict()
         fields = []
         primaryKey = None
         for k, v in attrs.items():
             if isinstance(v, Field):
-                logger.info('  found mapping: %s ==> %s' % (k, v))
+                orm_logger.info('  found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
                 if v.primary_key:
                     # 找到主键:
@@ -184,19 +184,19 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = await execute(self.__insert__, args)
         if rows != 1:
-            logger.warn('failed to insert record: affected rows: %s' % rows)
+            orm_logger.warn('failed to insert record: affected rows: %s' % rows)
 
     async def update(self):
         args = list(map(self.getValue, self.__fields__))
         args.append(self.getValue(self.__primary_key__))
         rows = await execute(self.__update__, args)
         if rows != 1:
-            logger.warn(
+            orm_logger.warn(
                 'failed to update by primary key: affected rows: %s' % rows)
 
     async def remove(self):
         args = [self.getValue(self.__primary_key__)]
         rows = await execute(self.__delete__, args)
         if rows != 1:
-            logger.warn(
+            orm_logger.warn(
                 'failed to remove by primary key: affected rows: %s' % rows)
