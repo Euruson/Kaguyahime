@@ -4,6 +4,7 @@ import json
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 import logging.config
+from types import SimpleNamespace
 
 import orm
 import coroweb
@@ -49,14 +50,14 @@ def init_jinja2(app, **kw):  # 初始化jinja2的函数
 
 async def init(loop):  # 初始化服务器
     init_logging()
-    with open('conf/logging.json', 'r') as f:
-        configs = json.load(f)
-    await orm.create_pool(loop=loop, **configs.db)
+    with open('conf/conf.json', 'r') as f:
+        configs = json.load(f, object_hook=lambda d: SimpleNamespace(**d))
+    await orm.create_pool(loop=loop, **configs.db.__dict__)
     ## 在handlers.py完全完成后,在下面middlewares的list中加入auth_factory
     app = web.Application(
         loop=loop, middlewares=[logger_factory, response_factory])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
-    coroweb.add_routes(app, 'handlers')
+    coroweb.add_routes(app, 'handler')
     coroweb.add_static(app)
     srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
     logging.info('Kaguyahime started at http://127.0.0.1:9000...')

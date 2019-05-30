@@ -3,10 +3,8 @@ import asyncio, logging, aiomysql
 orm_logger = logging.getLogger("ORM")
 
 
-def log(sql, args=()):
-    if (args == ()):
-        sql = sql + '()'
-    else:
+def log(sql, args):
+    if (args != None):
         sql = sql % args
     orm_logger.info('SQL: %s' % sql)
 
@@ -73,7 +71,7 @@ async def select(sql, args, size=None):
     global __pool
     with (await __pool) as conn:
         cur = await conn.cursor(aiomysql.DictCursor)
-        await cur.execute(sql.replace('?', '%s'), args or ())
+        await cur.execute(sql.replace('?', '%s'), args)
         if size:
             rs = await cur.fetchmany(size)
         else:
@@ -111,6 +109,7 @@ class ModelMetaclass(type):
         # 获取table名称:
         tableName = attrs.get('__table__', None) or name
         orm_logger.info('found model: %s (table: %s)' % (name, tableName))
+
         # 获取所有的Field和主键名:
         mappings = dict()
         fields = []
@@ -136,6 +135,7 @@ class ModelMetaclass(type):
         attrs['__table__'] = tableName
         attrs['__primary_key__'] = primaryKey  # 主键属性名
         attrs['__fields__'] = fields  # 除主键外的属性名
+
         # 构造默认的SELECT, INSERT, UPDATE和DELETE语句:
         attrs['__select__'] = 'select `%s`, %s from `%s`' % (
             primaryKey, ', '.join(escaped_fields), tableName)
@@ -179,12 +179,61 @@ class Model(dict, metaclass=ModelMetaclass):
                 setattr(self, key, value)
         return value
 
+    @classmethod
+    async def findAll(cls, where=None, args=None, **kw):
+        # find objects by where clause
+        sql = [cls.__select__]
+        if where:
+            sql.append('where')
+            sql.append(where)
+        if args is None:
+            args = []
+        orderBy = kw.get('orderBy', None)
+        if orderBy:
+            sql.append('order by')
+            sql.append(orderBy)
+        limit = kw.get('limit', None)
+        if limit is not None:
+            sql.append('limit')
+            if isinstance(limit, int):
+                sql.append('?')
+                args.append(limit)
+            elif isinstance(limit, tuple) and len(limit) == 2:
+                sql.append('?, ?')
+                args.extend(limit)
+            else:
+                raise ValueError('Invalid limit value: %s' % str(limit))
+        rs = await select(' '.join(sql), args)
+        return [cls(**r) for r in rs]
+
+    @classmethod
+    async def findNumber(cls, selectField, where=None, args=None):
+        # find number by select and where
+        sql = ['select %s _num_ from `%s`' % (selectField, cls.__table__)]
+        if where:
+            sql.append('where')
+            sql.append(where)
+        rs = await select(' '.join(sql), args, 1)
+        if len(rs) == 0:
+            return None
+        return rs[0]['_num_']
+
+    @classmethod
+    async def find(cls, pk):
+        # find object by primary key
+        rs = await select(
+            '%s where `%s`=?' % (cls.__select__, cls.__primary_key__), [pk], 1)
+        if len(rs) == 0:
+            return None
+        return cls(**rs[0])
+
     async def save(self):
         args = list(map(self.getValueOrDefault, self.__fields__))
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = await execute(self.__insert__, args)
         if rows != 1:
-            orm_logger.warn('failed to insert record: affected rows: %s' % rows)
+            orm_logger.warn(
+                'failed to insert record: affected rows: %s' % rows)
 
     async def update(self):
         args = list(map(self.getValue, self.__fields__))

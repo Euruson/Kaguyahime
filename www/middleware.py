@@ -4,11 +4,14 @@ import json
 
 middlerware_logger = logging.getLogger("MIDDLEWARE")
 
+
 ## 以下是middleware,可以把通用的功能从每个URL处理函数中拿出来集中放到一个地方
 ## URL处理日志工厂
 async def logger_factory(app, handler):
+
     async def logger(request):
-        middlerware_logger.info('Request: %s %s' % (request.method, request.path))
+        middlerware_logger.info(
+            'Request: %s %s' % (request.method, request.path))
         return (await handler(request))
 
     return logger
@@ -38,11 +41,13 @@ async def data_factory(app, handler):
         if request.method == 'POST':
             if request.content_type.startswith('application/json'):
                 request.__data__ = await request.json()
-                middlerware_logger.info('request json: %s' % str(request.__data__))
+                middlerware_logger.info(
+                    'request json: %s' % str(request.__data__))
             elif request.content_type.startswith(
                     'application/x-www-form-urlencoded'):
                 request.__data__ = await request.post()
-                middlerware_logger.info('request form: %s' % str(request.__data__))
+                middlerware_logger.info(
+                    'request form: %s' % str(request.__data__))
         return (await handler(request))
 
     return parse_data
