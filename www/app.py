@@ -8,11 +8,8 @@ from types import SimpleNamespace
 
 import orm
 import coroweb
-from middleware import logger_factory, data_factory, response_factory
+from middleware import logger_factory, data_factory, response_factory, auth_factory
 from jinja_filter import datetime_filter
-
-## handlers 是url处理模块, 当handlers.py在API章节里完全编辑完再将下一行代码的双井号去掉
-## from handlers import cookie2user, COOKIE_NAME
 
 
 def init_logging(  # 初始化日志配置
@@ -53,9 +50,8 @@ async def init(loop):  # 初始化服务器
     with open('conf/conf.json', 'r') as f:
         configs = json.load(f, object_hook=lambda d: SimpleNamespace(**d))
     await orm.create_pool(loop=loop, **configs.db.__dict__)
-    ## 在handlers.py完全完成后,在下面middlewares的list中加入auth_factory
     app = web.Application(
-        loop=loop, middlewares=[logger_factory, response_factory])
+        loop=loop, middlewares=[logger_factory, auth_factory, response_factory])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     coroweb.add_routes(app, 'handler')
     coroweb.add_static(app)
