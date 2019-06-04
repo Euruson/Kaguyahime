@@ -8,6 +8,7 @@
         "db": "Kaguyahime"
     },
     "session": {
-        "secret": "Kaguyahime"
+        "secret": "your-secret",
+        "key": "your-invitation-code"
     }
 }

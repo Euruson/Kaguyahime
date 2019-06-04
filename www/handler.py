@@ -9,13 +9,14 @@ from coroweb import get, post
 from apis import Page, APIValueError, APIResourceNotFoundError, APIPermissionError, APIError
 from model import User, Comment, Blog, next_id
 from types import SimpleNamespace
+from orm import StringField
 
 with open('conf/conf.json', 'r') as f:
     configs = json.load(f, object_hook=lambda d: SimpleNamespace(**d))
 
-COOKIE_NAME = 'awesession'
+COOKIE_NAME = 'Kaguyahime'
 _COOKIE_KEY = configs.session.secret
-
+_INVITATION_KEY = configs.session.key
 
 ## 查看是否是管理员用户
 def check_admin(request):
@@ -272,13 +273,15 @@ _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
 ## 用户注册API
 @post('/api/users')
-async def api_register_user(*, email, name, passwd):
+async def api_register_user(*, email, name, passwd, key):
     if not name or not name.strip():
         raise APIValueError('name')
     if not email or not _RE_EMAIL.match(email):
         raise APIValueError('email')
     if not passwd or not _RE_SHA1.match(passwd):
         raise APIValueError('passwd')
+    if key != _INVITATION_KEY:
+        raise APIError('register:failed','invitation-code','Invalid invitation code')
     users = await User.findAll('email=?', [email])
     if len(users) > 0:
         raise APIError('register:failed', 'email', 'Email is already in use.')

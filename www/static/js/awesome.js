@@ -2,83 +2,83 @@
 
 // patch for lower-version IE:
 
-if (! window.console) {
+if (!window.console) {
     window.console = {
-        log: function() {},
-        info: function() {},
-        error: function () {},
-        warn: function () {},
-        debug: function () {}
+        log: function () { },
+        info: function () { },
+        error: function () { },
+        warn: function () { },
+        debug: function () { }
     };
 }
 
 // patch for string.trim():
 
-if (! String.prototype.trim) {
-    String.prototype.trim = function() {
+if (!String.prototype.trim) {
+    String.prototype.trim = function () {
         return this.replace(/^\s+|\s+$/g, '');
     };
 }
 
-if (! Number.prototype.toDateTime) {
+if (!Number.prototype.toDateTime) {
     var replaces = {
-        'yyyy': function(dt) {
+        'yyyy': function (dt) {
             return dt.getFullYear().toString();
         },
-        'yy': function(dt) {
+        'yy': function (dt) {
             return (dt.getFullYear() % 100).toString();
         },
-        'MM': function(dt) {
+        'MM': function (dt) {
             var m = dt.getMonth() + 1;
             return m < 10 ? '0' + m : m.toString();
         },
-        'M': function(dt) {
+        'M': function (dt) {
             var m = dt.getMonth() + 1;
             return m.toString();
         },
-        'dd': function(dt) {
+        'dd': function (dt) {
             var d = dt.getDate();
             return d < 10 ? '0' + d : d.toString();
         },
-        'd': function(dt) {
+        'd': function (dt) {
             var d = dt.getDate();
             return d.toString();
         },
-        'hh': function(dt) {
+        'hh': function (dt) {
             var h = dt.getHours();
             return h < 10 ? '0' + h : h.toString();
         },
-        'h': function(dt) {
+        'h': function (dt) {
             var h = dt.getHours();
             return h.toString();
         },
-        'mm': function(dt) {
+        'mm': function (dt) {
             var m = dt.getMinutes();
             return m < 10 ? '0' + m : m.toString();
         },
-        'm': function(dt) {
+        'm': function (dt) {
             var m = dt.getMinutes();
             return m.toString();
         },
-        'ss': function(dt) {
+        'ss': function (dt) {
             var s = dt.getSeconds();
             return s < 10 ? '0' + s : s.toString();
         },
-        's': function(dt) {
+        's': function (dt) {
             var s = dt.getSeconds();
             return s.toString();
         },
-        'a': function(dt) {
+        'a': function (dt) {
             var h = dt.getHours();
             return h < 12 ? 'AM' : 'PM';
         }
     };
     var token = /([a-zA-Z]+)/;
-    Number.prototype.toDateTime = function(format) {
+    Number.prototype.toDateTime = function (format) {
         var fmt = format || 'yyyy-MM-dd hh:mm:ss'
         var dt = new Date(this * 1000);
         var arr = fmt.split(token);
-        for (var i=0; i<arr.length; i++) {
+        for (var i = 0; i < arr.length; i++) {
             var s = arr[i];
             if (s && s in replaces) {
                 arr[i] = replaces[s](dt);
@@ -104,15 +104,15 @@ function parseQueryString() {
         q = location.search,
         r = {},
         i, pos, s, qs;
-    if (q && q.charAt(0)==='?') {
+    if (q && q.charAt(0) === '?') {
         qs = q.substring(1).split('&');
-        for (i=0; i<qs.length; i++) {
+        for (i = 0; i < qs.length; i++) {
             s = qs[i];
             pos = s.indexOf('=');
             if (pos <= 0) {
                 continue;
             }
-            r[s.substring(0, pos)] = decodeURIComponent(s.substring(pos+1)).replace(/\+/g, ' ');
+            r[s.substring(0, pos)] = decodeURIComponent(s.substring(pos + 1)).replace(/\+/g, ' ');
         }
     }
     return r;
@@ -138,7 +138,7 @@ function refresh() {
 }
 
 function toSmartDate(timestamp) {
-    if (typeof(timestamp)==='string') {
+    if (typeof (timestamp) === 'string') {
         timestamp = parseInt(timestamp);
     }
     if (isNaN(timestamp)) {
@@ -159,7 +159,7 @@ function toSmartDate(timestamp) {
             d = that.getDate(),
             hh = that.getHours(),
             mm = that.getMinutes();
-        s = y===today.getFullYear() ? '' : y + '年';
+        s = y === today.getFullYear() ? '' : y + '年';
         s = s + m + '月' + d + '日' + hh + ':' + (mm < 10 ? '0' : '') + mm;
     }
     else if (t >= 86400000) {
@@ -178,8 +178,8 @@ function toSmartDate(timestamp) {
 
 
 
-$(function() {
-    $('.x-smartdate').each(function() {
+$(function () {
+    $('.x-smartdate').each(function () {
         $(this).removeClass('x-smartdate').text(toSmartDate($(this).attr('date')));
     });
 });
@@ -226,7 +226,7 @@ $(function () {
                     $form = $(this),
                     $alert = $form && $form.find('.uk-alert-danger'),
                     fieldName = err && err.data;
-                if (! $form.is('form')) {
+                if (!$form.is('form')) {
                     console.error('Cannot call showFormError() on non-form object.');
                     return;
                 }
@@ -258,9 +258,9 @@ $(function () {
                     $form = $(this),
                     $submit = $form && $form.find('button[type=submit]'),
                     $buttons = $form && $form.find('button');
-                    $i = $submit && $submit.find('i'),
+                $i = $submit && $submit.find('i'),
                     iconClass = $i && $i.attr('class');
-                if (! $form.is('form')) {
+                if (!$form.is('form')) {
                     console.error('Cannot call showFormLoading() on non-form object.');
                     return;
                 }
@@ -279,7 +279,7 @@ $(function () {
             });
         },
         postJSON: function (url, data, callback) {
-            if (arguments.length===2) {
+            if (arguments.length === 2) {
                 callback = data;
                 data = {};
             }
@@ -306,10 +306,10 @@ function _httpJSON(method, url, data, callback) {
         type: method,
         dataType: 'json'
     };
-    if (method==='GET') {
+    if (method === 'GET') {
         opt.url = url + '?' + data;
     }
-    if (method==='POST') {
+    if (method === 'POST') {
         opt.url = url;
         opt.data = JSON.stringify(data || {});
         opt.contentType = 'application/json';
@@ -320,16 +320,16 @@ function _httpJSON(method, url, data, callback) {
         }
         return callback(null, r);
     }).fail(function (jqXHR, textStatus) {
-        return callback({'error': 'http_bad_response', 'data': '' + jqXHR.status, 'message': '网络好像出问题了 (HTTP ' + jqXHR.status + ')'});
+        return callback({ 'error': 'http_bad_response', 'data': '' + jqXHR.status, 'message': '网络好像出问题了 (HTTP ' + jqXHR.status + ')' });
     });
 }
 
 function getJSON(url, data, callback) {
-    if (arguments.length===2) {
+    if (arguments.length === 2) {
         callback = data;
         data = {};
     }
-    if (typeof (data)==='object') {
+    if (typeof (data) === 'object') {
         var arr = [];
         $.each(data, function (k, v) {
             arr.push(k + '=' + encodeURIComponent(v));
@@ -340,7 +340,7 @@ function getJSON(url, data, callback) {
 }
 
 function postJSON(url, data, callback) {
-    if (arguments.length===2) {
+    if (arguments.length === 2) {
         callback = data;
         data = {};
     }
@@ -349,21 +349,22 @@ function postJSON(url, data, callback) {
 
 // extends Vue:
 
-if (typeof(Vue)!=='undefined') {
+if (typeof (Vue) !== 'undefined') {
     Vue.filter('datetime', function (value) {
         var d = value;
-        if (typeof(value)==='number') {
+        if (typeof (value) === 'number') {
             d = new Date(value);
         }
         return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes();
     });
     Vue.component('pagination', {
+        props: ['page'],
         template: '<ul class="uk-pagination">' +
-                '<li v-if="! has_previous" class="uk-disabled"><span><i class="uk-icon-angle-double-left"></i></span></li>' +
-                '<li v-if="has_previous"><a v-attr="onclick:\'gotoPage(\' + (page_index-1) + \')\'" href="#0"><i class="uk-icon-angle-double-left"></i></a></li>' +
-                '<li class="uk-active"><span v-text="page_index"></span></li>' +
-                '<li v-if="! has_next" class="uk-disabled"><span><i class="uk-icon-angle-double-right"></i></span></li>' +
-                '<li v-if="has_next"><a v-attr="onclick:\'gotoPage(\' + (page_index+1) + \')\'" href="#0"><i class="uk-icon-angle-double-right"></i></a></li>' +
+            '<li v-if="! page.has_previous" class="uk-disabled"><span><i uk-icon="chevron-left"></i></span></li>' +
+            '<li v-if="page.has_previous"><a v-bind:onclick="\'gotoPage(\' + (page.page_index-1) + \')\'" href="#0"><i uk-icon="chevron-left"></i></a></li>' +
+            '<li class="uk-active"><span v-text="page.page_index"></span></li>' +
+            '<li v-if="! page.has_next" class="uk-disabled"><span><i uk-icon="chevron-right"></i></span></li>' +
+            '<li v-if="page.has_next"><a v-bind:onclick="\'gotoPage(\' + (page.page_index+1) + \')\'" href="#0"><i uk-icon="chevron-right"></i></a></li>' +
             '</ul>'
     });
 }
@@ -373,7 +374,7 @@ function redirect(url) {
         hash_pos = url.indexOf('#'),
         query_pos = url.indexOf('?'),
         hash = '';
-    if (hash_pos >=0 ) {
+    if (hash_pos >= 0) {
         hash = url.substring(hash_pos);
         url = url.substring(0, hash_pos);
     }
@@ -411,7 +412,7 @@ function _bindSubmit($form) {
             }
             else {
                 var r = fn_success ? window[fn_success](result) : false;
-                if (r===false) {
+                if (r === false) {
                     $submit.removeAttr('disabled');
                 }
             }
@@ -429,8 +430,8 @@ $(function () {
     });
 });
 
-$(function() {
-    if (location.pathname === '/' || location.pathname.indexOf('/blog')===0) {
+$(function () {
+    if (location.pathname === '/' || location.pathname.indexOf('/blog') === 0) {
         $('li[data-url=blogs]').addClass('uk-active');
     }
 });

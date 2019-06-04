@@ -34,11 +34,18 @@
                         placeholder="输入口令">
                 </div>
             </div>
-            <div class="uk-margin">
+            <div class="uk-margin-top">
                 <label class="uk-form-label">REPEAT PASSWORD/重复口令:</label>
                 <div class="uk-form-controls">
                     <input class="uk-input uk-form-width-medium" v-model="password2" type="password" maxlength="50"
                         placeholder="重复口令">
+                </div>
+            </div>
+            <div class="uk-margin-top">
+                <label class="uk-form-label">INVITATION CODE/邀请码:</label>
+                <div class="uk-form-controls">
+                    <input class="uk-input uk-form-width-medium" v-model="key" type="text" maxlength="50"
+                        placeholder="邀请码">
                 </div>
             </div>
             <div class="uk-margin-large">
@@ -63,16 +70,17 @@
             name: '',
             email: '',
             password1: '',
-            password2: ''
+            password2: '',
+            key: ''
         },
         methods: {
             submit: function (event) {
                 var $form = $('#vm');
                 if (!this.name.trim()) {
-                    return $form.showFormError('NAME/请输入名字');
+                    return $form.showFormError('NAME NOT FOUND/请输入名字');
                 }
                 if (!validateEmail(this.email.trim().toLowerCase())) {
-                    return $form.showFormError('CORRECT EMAIL/请输入正确的Email地址');
+                    return $form.showFormError('INVALID EMAIL/请输入正确的Email地址');
                 }
                 if (this.password1.length < 6) {
                     return $form.showFormError('PASSWORD AT LEAST 6 CHAR/口令长度至少为6个字符');
@@ -80,11 +88,15 @@
                 if (this.password1 !== this.password2) {
                     return $form.showFormError('PASSWORD INCONSIST/两次输入的口令不一致');
                 }
+                if (!this.key.trim()) {
+                    return $form.showFormError('INVITATION CODE NOT FOUND/请输入邀请码');
+                }
                 var email = this.email.trim().toLowerCase();
                 $form.postJSON('/api/users', {
                     name: this.name.trim(),
                     email: email,
-                    passwd: CryptoJS.SHA1(email + ':' + this.password1).toString()
+                    passwd: CryptoJS.SHA1(email + ':' + this.password1).toString(),
+                    key: this.key
                 }, function (err, r) {
                     if (err) {
                         return $form.showFormError(err);

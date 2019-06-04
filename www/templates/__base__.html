@@ -35,7 +35,7 @@
 
     <!--jinja2 title块-->
     <title>{% block title %} ? {% endblock %} | Powered by Kaguyahime</title>
-    
+
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <script src="/static/js/sha1.min.js"></script>
     <script src="/static/js/uikit.min.js"></script>
@@ -115,9 +115,11 @@
                         <div class="uk-offcanvas-bar uk-flex uk-flex-column">
                             <ul class="uk-nav uk-nav-default uk-margin-auto-vertical">
                                 <li><a href="/"> Article | 日志</a></li>
+                                <li><a href="#"> Live | 直播</a></li>
+                                <!-- <li><a href="/"> Article | 日志</a></li>
                                 <li><a href="https://aodabo.tech/tags/tutorial"> Tutorial | 教程</a></li>
                                 <li><a href="https://aodabo.tech/tags/landscape"> Landscape | 景观</a></li>
-                                <li><a href="https://aodabo.tech/tags/coding"> Coding | 编程</a></li>
+                                <li><a href="https://aodabo.tech/tags/coding"> Coding | 编程</a></li> -->
                                 {% if __user__ %}
                                 <li><a href="/manage/">Manage | 管理</a></li>
                                 <li><a href="/signout"> Logout | 注销</a></li>
