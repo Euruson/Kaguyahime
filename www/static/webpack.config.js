@@ -1,6 +1,7 @@
 var path = require('path');
 var glob = require('glob');
 var webpack = require('webpack');
+const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
 //定义了一些文件夹的路径
 var ROOT_PATH = path.resolve(__dirname);
@@ -41,6 +42,13 @@ module.exports = {
 			new webpack.ProvidePlugin({
 				$: 'jquery',
 				jQuery: 'jquery'
+			}),
+			new MergeIntoSingleFilePlugin({
+				files: {
+					"vendor.js": [
+						'js/awesome.js'
+					],
+				}
 			})
 		]
 };
