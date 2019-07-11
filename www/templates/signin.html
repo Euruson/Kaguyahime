@@ -10,6 +10,32 @@
 
 <!--jinja2 content 块内容替换，构建登录页面UI主要内容-->
 {% block content %}
+<!--script中构建vue,向后端API提交登录验证信息数据-->
+<script>
+    var vmAuth = new Vue({
+        el: '#vm',
+        data: {
+            email: '',
+            passwd: ''
+        },
+        methods: {
+            submit: function (event) {
+                var $form = $('#vm');
+                var email = this.email.trim().toLowerCase();
+                var data = {
+                    email: email,
+                    passwd: this.passwd === '' ? '' : CryptoJS.SHA1(email + ':' + this.passwd).toString()
+                };
+                $form.postJSON('/api/authenticate', data, function (err, result) {
+                    if (!err) {
+                        location.assign('/');
+                    }
+                });
+            }
+        }
+    })
+</script>
+
 <div class="uk-grid">
     <div class="uk-width-1-1">
         <h4>SIGNIN/欢迎登陆！</h4>
@@ -38,30 +64,4 @@
     </div>
 </div>
 
-<!--script中构建vue,向后端API提交登录验证信息数据-->
-<script>
-    var vmAuth = new Vue({
-        el: '#vm',
-        data: {
-            email: '',
-            passwd: ''
-        },
-        methods: {
-            submit: function (event) {
-                var $form = $('#vm');
-                var email = this.email.trim().toLowerCase();
-                var data = {
-                    email: email,
-                    passwd: this.passwd === '' ? '' : CryptoJS.SHA1(email + ':' + this.passwd).toString()
-                };
-                $form.postJSON('/api/authenticate', data, function (err, result) {
-                    if (!err) {
-                        location.assign('/');
-                    }
-                });
-            }
-        }
-    })
-
-</script>
 {% endblock %}

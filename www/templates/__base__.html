@@ -16,7 +16,6 @@
     {% endif %}
 </ul>
 {% endmacro %}
-
 <!--导航页代码-->
 <html>
 
@@ -37,7 +36,11 @@
     <title>{% block title %} ? {% endblock %} | Powered by Kaguyahime</title>
 
     <link rel="stylesheet" href="/static/css/uikit.min.css">
-    <script src=/static/bundle.js></script>
+    <link rel="shortcut icon" href="/static/favicon.png">
+
+    <script src="/static/bundle.js"></script>
+    <script src="/static/vendor.js"></script>
+
     <!--jinja2 beforehead块-->
     {% block beforehead %}
     <!-- before head  -->
@@ -50,6 +53,7 @@
     <!--"uk-"开头的都是UIkit里的组件，具体请参考UIkit官网的Documents详解-->
     <!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
     <div class="uk-margin uk-visible@m" style="background-color:rgba(100,150,185,0);">
+        <!-- <canvas id="Mycanvas"></canvas> -->
         <div class="uk-container uk-container-medium">
             <!--导航栏UI-->
             <nav class="uk-navbar-container" uk-navbar style="background-color:rgba(255,255,255,0);">
@@ -60,8 +64,9 @@
                         Euruson's Blog
                     </a>
                     <ul class="uk-navbar-nav">
-                        <li><a href="/"> Article | 日志</a></li>
-                        <li><a href="#"> Live | 直播</a></li>
+                        <li><a href="/"> POST | 日志</a></li>
+                        <li><a href="http://live.euruson.com" target="_blank"> Live | 直播</a></li>
+                        <li><a href="/test">Demo | 样例</a></li>
                         <!--
                 <li><a href="https://aodabo.tech/tags/tutorial"> Tutorial | 教程</a></li>
                 <li><a href="https://aodabo.tech/tags/landscape"> Landscape | 景观</a></li>
@@ -108,12 +113,9 @@
                     <div id="offcanvas-nav" uk-offcanvas="overlay: true; flip: true">
                         <div class="uk-offcanvas-bar uk-flex uk-flex-column">
                             <ul class="uk-nav uk-nav-default uk-margin-auto-vertical">
-                                <li><a href="/"> Article | 日志</a></li>
+                                <li><a href="/"> POST | 日志</a></li>
                                 <li><a href="#"> Live | 直播</a></li>
-                                <!-- <li><a href="/"> Article | 日志</a></li>
-                                <li><a href="https://aodabo.tech/tags/tutorial"> Tutorial | 教程</a></li>
-                                <li><a href="https://aodabo.tech/tags/landscape"> Landscape | 景观</a></li>
-                                <li><a href="https://aodabo.tech/tags/coding"> Coding | 编程</a></li> -->
+                                <li><a href="/test">Demo | 样例</a></li>
                                 {% if __user__ %}
                                 <li><a href="/manage/">Manage | 管理</a></li>
                                 <li><a href="/signout"> Logout | 注销</a></li>
@@ -144,12 +146,12 @@
                     ratio="1.1" uk-icon="github"></a>
             </p>
             <p class="uk-text-meta" style="line-height: 10px; padding: 10px 0; margin: 8px 0;">Powered by <a
-                    href="http://blog.euruson.com">Kaguyahime</a> Copyright &copy; 2019.</p>
+                    href="https://github.com/Euruson/Kaguyahime" target="_blank">Kaguyahime</a> Copyright &copy; 2019.
+            </p>
             <p class="uk-text-meta" style="line-height: 0px; padding: 0px 0; margin: 0px 0;"><a
                     href="http://blog.euruson.com" target="_blank">Euruson</a>. All rights reserved.</p>
         </div>
     </div>
-
 </body>
 
 </html>

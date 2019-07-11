@@ -98,16 +98,8 @@
                 </tr>
             </tbody>
         </table>
-        <div class="uk-width-1-1 uk-text-center">
-            <ul class="uk-pagination">
-                <li v-if="! page.has_previous" class="uk-disabled"><span><i uk-icon="chevron-left"></i></span></li>
-                <li v-if="page.has_previous"><a v-on:click="previous()" href="#0"><i uk-icon="chevron-left"></i></a>
-                </li>
-                <li class="uk-active"><span v-text="page.page_index"></span></li>
-                <li v-if="! page.has_next" class="uk-disabled"><span><i uk-icon="chevron-right"></i></span></li>
-                <li v-if="page.has_next"><a v-on:click="next()" href="#0"><i uk-icon="chevron-right"></i></a></li>
-            </ul>
-        </div>
+        <pagination v-bind:page="page" v-on:go-to-previous-page="previous" v-on:go-to-next-page="next">
+        </pagination>
     </div>
 </div>
 

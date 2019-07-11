@@ -357,6 +357,16 @@ if (typeof (Vue) !== 'undefined') {
         }
         return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes();
     });
+    Vue.component('pagination', {
+        props: ['page'],
+        template: '<ul class="uk-pagination">' +
+            '<li v-if="! page.has_previous" class="uk-disabled"><span><i uk-icon="chevron-left"></i></span></li>' +
+            '<li v-if="page.has_previous"><a v-bind:onclick="\'gotoPage(\' + (page.page_index-1) + \')\'" href="#0"><i uk-icon="chevron-left"></i></a></li>' +
+            '<li class="uk-active"><span v-text="page.page_index"></span></li>' +
+            '<li v-if="! page.has_next" class="uk-disabled"><span><i uk-icon="chevron-right"></i></span></li>' +
+            '<li v-if="page.has_next"><a v-bind:onclick="\'gotoPage(\' + (page.page_index+1) + \')\'" href="#0"><i uk-icon="chevron-right"></i></a></li>' +
+            '</ul>'
+    });
 }
 
 function redirect(url) {

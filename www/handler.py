@@ -101,6 +101,10 @@ async def get_blog(id):
     blog.html_content = markdown.markdown(blog.content)
     return {'__template__': 'blog.html', 'blog': blog, 'comments': comments}
 
+## 处理注册页面URL
+@get('/test')
+def test():
+    return {'__template__': 'test.html'}
 
 ## 处理注册页面URL
 @get('/register')

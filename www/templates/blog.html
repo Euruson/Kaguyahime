@@ -32,6 +32,7 @@
 
 <!--jinja2 content 块内容替换-->
 {% block content %}
+
 <div class="uk-grid  uk-visible@m">
     <div class="uk-width-3-4">
         <!--日志内容详情-->
@@ -55,6 +56,9 @@
                 <div class="uk-width-expand">
                     <h4 class="uk-comment-title uk-margin-remove">{{ __user__.name }}
                 </div>
+                <div class="uk-margin">
+                    <button form="form-comment" type="submit" class="uk-button uk-button-primary"> 发表评论</button>
+                </div>
             </header>
             <div class="uk-comment-body">
                 <form id="form-comment" class="uk-form">
@@ -63,13 +67,21 @@
                         <div class="uk-margin">
                             <textarea class="uk-textarea" rows="6" placeholder="说点什么吧"></textarea>
                         </div>
-                        <div class="uk-margin">
-                            <button type="submit" class="uk-button uk-button-primary"> 发表评论</button>
-                        </div>
+                        
                     </fieldset>
                 </form>
             </div>
         </article>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+        <style>
+            .CodeMirror {
+                height: 100px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+        <script>
+            var simplemde = new SimpleMDE({spellChecker:false});
+        </script>
 
         <hr>
         {% endif %}
