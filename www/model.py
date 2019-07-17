@@ -42,3 +42,16 @@ class Comment(Model):
     user_image = StringField(ddl='varchar(500)')
     content = TextField()
     created_at = FloatField(default=time.time)
+
+class Tag(Model):
+    __table__ = 'tags'
+
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    name = StringField(ddl='varchar(50)')
+
+class BlogTag(Model):
+    __table__ = 'blog_tag'
+
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    blog_id = StringField(ddl='varchar(50)')
+    tag_id = StringField(ddl='varchar(50)')

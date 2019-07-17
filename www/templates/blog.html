@@ -43,52 +43,8 @@
         </article>
 
         <hr>
-
         <!--日志评论区-->
-        {% if __user__ %}
-        <h3>发表评论</h3>
-
-        <article class="uk-comment">
-            <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
-                <div class="uk-width-auto">
-                    <img class="uk-comment-avatar" src="{{ __user__.image }}" width="50" height="50" alt="">
-                </div>
-                <div class="uk-width-expand">
-                    <h4 class="uk-comment-title uk-margin-remove">{{ __user__.name }}
-                </div>
-                <div class="uk-margin">
-                    <button form="form-comment" type="submit" class="uk-button uk-button-primary"> 发表评论</button>
-                </div>
-            </header>
-            <div class="uk-comment-body">
-                <form id="form-comment" class="uk-form">
-                    <fieldset class="uk-fieldset">
-                        <div class="uk-alert uk-alert-danger uk-hidden"></div>
-                        <div class="uk-margin">
-                            <textarea class="uk-textarea" rows="6" placeholder="说点什么吧"></textarea>
-                        </div>
-                        
-                    </fieldset>
-                </form>
-            </div>
-        </article>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-        <style>
-            .CodeMirror {
-                height: 100px;
-            }
-        </style>
-        <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-        <script>
-            var simplemde = new SimpleMDE({spellChecker:false});
-        </script>
-
-        <hr>
-        {% endif %}
-
-        <h3>最新评论</h3>
-
-
+        <h3 class="uk-margin-remove-top">最新评论</h3>
         {% for comment in comments %}
         <article class="uk-comment uk-margin-small-bottom">
             <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
@@ -114,17 +70,61 @@
         {% endfor %}
         </ul>
 
+
+        {% if __user__ %}
+        <hr>
+        <ul uk-accordion>
+            <li>
+                <a class="uk-accordion-title" href="#">
+                    <h3>发表评论</h3>
+                </a>
+                <div class="uk-accordion-content">
+                    <article id="my-comment" class="uk-comment">
+                        <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                            <div class="uk-width-auto">
+                                <img class="uk-comment-avatar" src="{{ __user__.image }}" width="50" height="50" alt="">
+                            </div>
+                            <div class="uk-width-expand">
+                                <h4 class="uk-comment-title uk-margin-remove">{{ __user__.name }}
+                            </div>
+                            <div class="uk-margin">
+                                <button form="form-comment" type="submit" class="uk-button uk-button-primary">
+                                    发表评论</button>
+                            </div>
+                        </header>
+                        <div class="uk-comment-body">
+                            <form id="form-comment" class="uk-form">
+                                <fieldset class="uk-fieldset">
+                                    <div class="uk-alert uk-alert-danger uk-hidden"></div>
+                                    <div class="uk-margin">
+                                        <textarea class="uk-textarea" rows="6" placeholder="说点什么吧"></textarea>
+                                    </div>
+
+                                </fieldset>
+                            </form>
+                        </div>
+                    </article>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+                    <style>
+                        .CodeMirror {
+                            height: 100px;
+                        }
+                    </style>
+                    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+                    <script>
+                        var simplemde = new SimpleMDE({ spellChecker: false });
+                    </script>
+                </div>
+            </li>
+        </ul>
+
+        {% endif %}
+
+
     </div>
 
     <div class="uk-width-1-4 uk-visible@m">
-        <div class="uk-card uk-card-default">
-            <div class="uk-card-body">
-                <div class="uk-text-center">
-                    <img class="uk-border-circle" width="120" height="120" src="{{ blog.user_image }}">
-                    <h4>{{ blog.user_name }}</h4>
-                </div>
-            </div>
-        </div>
+        {{ blog.toc|safe }}
     </div>
 </div>
 

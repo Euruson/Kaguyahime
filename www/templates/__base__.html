@@ -36,6 +36,7 @@
     <title>{% block title %} ? {% endblock %} | Powered by Kaguyahime</title>
 
     <link rel="stylesheet" href="/static/css/uikit.min.css">
+    <link rel="stylesheet" href="/static/css/theme.css">
     <link rel="shortcut icon" href="/static/favicon.png">
 
     <script src="/static/bundle.js"></script>
@@ -50,28 +51,20 @@
 <!--导航页正文内容-->
 
 <body>
-    <!--"uk-"开头的都是UIkit里的组件，具体请参考UIkit官网的Documents详解-->
     <!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
-    <div class="uk-margin uk-visible@m" style="background-color:rgba(100,150,185,0);">
-        <!-- <canvas id="Mycanvas"></canvas> -->
-        <div class="uk-container uk-container-medium">
+    <div class="uk-margin uk-visible@m">
+        <div class="uk-container uk-container-large">
             <!--导航栏UI-->
-            <nav class="uk-navbar-container" uk-navbar style="background-color:rgba(255,255,255,0);">
+            <nav class="uk-navbar-container" uk-navbar style="background-color:rgba(255, 255, 255, 0);">
                 <div class="uk-navbar-left uk-margin-medium-top uk-margin-medium-bottom">
-                    <a class="uk-navbar-item uk-logo uk-margin-left" href="/">
-                        <!--此处uk-icon为图标,读者可以选UIkit自带icon,也可以添加自定义icon重新打包uk-icon.js,详见官网Documentation-->
-                        <!--<span class="uk-icon uk-margin-small-right" uk-icon="heart" ratio="2"></span>-->
+                    <a class="uk-navbar-item uk-logo" href="/">
                         Euruson's Blog
                     </a>
                     <ul class="uk-navbar-nav">
                         <li><a href="/"> POST | 日志</a></li>
+                        <li><a href="/"> TAG | 标签</a></li>
                         <li><a href="http://live.euruson.com" target="_blank"> Live | 直播</a></li>
-                        <li><a href="/test">Demo | 样例</a></li>
-                        <!--
-                <li><a href="https://aodabo.tech/tags/tutorial"> Tutorial | 教程</a></li>
-                <li><a href="https://aodabo.tech/tags/landscape"> Landscape | 景观</a></li>
-                <li><a href="https://aodabo.tech/tags/coding"> Coding | 编程</a></li>
-                -->
+                        <li><a href="/">Demo | 样例</a></li>
                     </ul>
                 </div>
                 <div class="uk-navbar-right uk-margin-medium-top uk-margin-medium-bottom">

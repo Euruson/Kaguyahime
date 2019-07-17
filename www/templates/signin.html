@@ -12,27 +12,29 @@
 {% block content %}
 <!--script中构建vue,向后端API提交登录验证信息数据-->
 <script>
-    var vmAuth = new Vue({
-        el: '#vm',
-        data: {
-            email: '',
-            passwd: ''
-        },
-        methods: {
-            submit: function (event) {
-                var $form = $('#vm');
-                var email = this.email.trim().toLowerCase();
-                var data = {
-                    email: email,
-                    passwd: this.passwd === '' ? '' : CryptoJS.SHA1(email + ':' + this.passwd).toString()
-                };
-                $form.postJSON('/api/authenticate', data, function (err, result) {
-                    if (!err) {
-                        location.assign('/');
-                    }
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        var vmAuth = new Vue({
+            el: '#vm',
+            data: {
+                email: '',
+                passwd: ''
+            },
+            methods: {
+                submit: function (event) {
+                    var $form = $('#vm');
+                    var email = this.email.trim().toLowerCase();
+                    var data = {
+                        email: email,
+                        passwd: this.passwd === '' ? '' : CryptoJS.SHA1(email + ':' + this.passwd).toString()
+                    };
+                    $form.postJSON('/api/authenticate', data, function (err, result) {
+                        if (!err) {
+                            location.assign('/');
+                        }
+                    });
+                }
             }
-        }
+        })
     })
 </script>
 

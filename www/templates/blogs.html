@@ -9,65 +9,81 @@
 
 <!--jinja2 content 块内容替换-->
 {% block content %}
-    <!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
-    <!--日志列表内容-->
-    <div class="uk-grid  uk-visible@m">
+<!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
+<!--日志列表内容-->
+<div class="uk-grid  uk-visible@m">
     <div class="uk-width-3-4">
-    {% for blog in blogs %}
+        {% for blog in blogs %}
         <article class="uk-article">
-            <h3><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h3>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
+            <h3 class="uk-link-heading uk-margin-remove-bottom"><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h3>
+
+            <div class="uk-flex uk-flex-middle">
+                <div class="uk-width-4-5" ukgrid>
+                    {% for tag in blog.tags %}
+                    <!-- <a class="uk-label" ref='/tags/{{ tag.tag.name }}'> -->
+                    <a class="uk-button uk-button-text" href="/tags/{{ tag.tag.name }}">{{ tag.tag.name }}</a> &nbsp;
+                    {% endfor %}
+                </div>
+
+                <div class="uk-article-meta uk-width-expand uk-text-right">
+                    发表于{{ blog.created_at|datetime }}
+                </div>
+            </div>
+
             <p>{{ blog.summary }}</p>
-            <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
+            <a class="uk-button-text" href="/blog/{{ blog.id }}">
+                <span uk-icon="chevron-double-right">继续阅读</span>
+            </a>
+
         </article>
         <hr>
-    {% endfor %}
-    <!--分页导航栏，在父模板的开头定义过-->
-    {{ pagination(page) }}
+        {% endfor %}
+        <!--分页导航栏，在父模板的开头定义过-->
+        {{ pagination(page) }}
     </div>
 
     <!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
     <!--右边侧导航栏-->
     <div class="uk-width-1-4 uk-visible@m">
-            <h4>站内搜索</h4>
-            <FORM method=GET action="https://www.google.com/search">
-                <div class="uk-inline">
-                    <a class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="search"></a>
-                    <INPUT class="uk-input" TYPE=text name=q placeholder="站内搜索" size=31 maxlength=255 value="">
-                </div>
-                <font size=-1>
-                    <INPUT TYPE=hidden name=domains value="aodabo.tech"><br>
-                    <INPUT TYPE=hidden name=sitesearch value="aodabo.tech"></br>
-                </font>
-                <button TYPE=submit name=btnG class="uk-button uk-button-default"> SEARCH</button>
+        <h4>站内搜索</h4>
+        <FORM method=GET action="https://www.google.com/search">
+            <div class="uk-inline">
+                <a class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="search"></a>
+                <INPUT class="uk-input" TYPE=text name=q placeholder="站内搜索" size=31 maxlength=255 value="">
+            </div>
+            <font size=-1>
+                <INPUT TYPE=hidden name=domains value="aodabo.tech"><br>
+                <INPUT TYPE=hidden name=sitesearch value="aodabo.tech"></br>
+            </font>
+            <button TYPE=submit name=btnG class="uk-button uk-button-default"> SEARCH</button>
 
-            </FORM>
+        </FORM>
 
 
-            <h4>亲密链接</h4>
-            <ul class="uk-list uk-list-divider">
-                    <li><a target="_blank" href="https://www.baidu.com/">Everything</a></li>
-                    <li><a target="_blank" href="https://www.google.com/">Everything Plus</a></li>
-                    <li><a target="_blank" href="https://www.liaoxuefeng.com/">Tutorial</a></li>
-            </ul>
+        <h4>亲密链接</h4>
+        <ul class="uk-list uk-list-divider uk-link-text">
+            <li><a target="_blank" href="https://www.baidu.com/">Everything</a></li>
+            <li><a target="_blank" href="https://www.google.com/">Everything Plus</a></li>
+            <li><a target="_blank" href="https://www.liaoxuefeng.com/">Tutorial</a></li>
+        </ul>
     </div>
-    </div>
+</div>
 
-    <!--uk-hidden@m是小于中等尺寸屏幕时显示的UI-->
-    <!--移动屏幕时日志列表排版-->
-    <div class="uk-hidden@m">
+<!--uk-hidden@m是小于中等尺寸屏幕时显示的UI-->
+<!--移动屏幕时日志列表排版-->
+<div class="uk-hidden@m">
     {% for blog in blogs %}
-        <article class="uk-article">
-            <h5><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h5>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
-            <p>{{ blog.summary }}</p>
-            <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
-        </article>
-        <hr>
+    <article class="uk-article">
+        <h5><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h5>
+        <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
+        <p>{{ blog.summary }}</p>
+        <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
+    </article>
+    <hr>
     {% endfor %}
     <!--分页导航栏，在父模板的开头定义过-->
     {{ pagination(page) }}
-    </div>
+</div>
 
 
 {% endblock %}

@@ -7,7 +7,7 @@ from coroweb import get, post
 
 ## 分页管理以及调取API时的错误信息
 from apis import Page, APIValueError, APIResourceNotFoundError, APIPermissionError, APIError
-from model import User, Comment, Blog, next_id
+from model import User, Comment, Blog, BlogTag, Tag, next_id
 from types import SimpleNamespace
 from orm import StringField
 
@@ -17,6 +17,7 @@ with open('conf/conf.json', 'r') as f:
 COOKIE_NAME = 'Kaguyahime'
 _COOKIE_KEY = configs.session.secret
 _INVITATION_KEY = configs.session.key
+
 
 ## 查看是否是管理员用户
 def check_admin(request):
@@ -49,6 +50,28 @@ def user2cookie(user, max_age):
 def text2html(text):
     lines = map(lambda s: '<p>%s</p>' % s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'), filter(lambda s: s.strip() != '', text.split('\n')))
     return ''.join(lines)
+
+
+## 生成TOC
+def toc_parser(toc_tokens):
+    html = ''
+    for token in toc_tokens:
+        html += '<li><a href="#%s">%s</a></li>' % (token['id'], token['name'])
+        if (token['children']):
+            if (token['level'] == 1):
+                html = html + '<ul class="uk-nav-sub tm-nav">' + toc_parser(
+                    token['children']) + '</ul>'
+            else:
+                html = html + '<ul class="tm-nav">' + toc_parser(
+                    token['children']) + '</ul>'
+    return html
+
+
+def toc_helper(toc_tokens):
+    return '<div uk-sticky="offset: 200" class="toc"> 文章目录<br> Table of Contents<br><br>' +\
+    '<ul uk-scrollspy-nav="closest: li; scroll: true; offset: 50; overflow: false" class="uk-nav uk-nav-default tm-nav">'+\
+    toc_parser(toc_tokens) +\
+    '</ul></div>'
 
 
 ## 解密cookie
@@ -87,6 +110,15 @@ async def index(*, page='1'):
     else:
         blogs = await Blog.findAll(
             orderBy='created_at desc', limit=(p.offset, p.limit))
+        for blog in blogs:
+            blog_tags = await BlogTag.findAll(
+                where="`blog_id` = '" + blog.id + "'")
+            blog.tags = []
+            for blog_tag in blog_tags:
+                blog.tags.append(
+                    dict(
+                        blog_tag=blog_tag, tag=await
+                        Tag.find(blog_tag.tag_id)))
     return {'__template__': 'blogs.html', 'page': p, 'blogs': blogs}
 
 
@@ -98,13 +130,11 @@ async def get_blog(id):
         'blog_id=?', [id], orderBy='created_at desc')
     for c in comments:
         c.html_content = markdown.markdown(c.content)
-    blog.html_content = markdown.markdown(blog.content)
+    md = markdown.Markdown(extensions=['extra', 'toc'])
+    blog.html_content = md.convert(blog.content)
+    blog.toc = toc_helper(md.toc_tokens)
     return {'__template__': 'blog.html', 'blog': blog, 'comments': comments}
 
-## 处理注册页面URL
-@get('/test')
-def test():
-    return {'__template__': 'test.html'}
 
 ## 处理注册页面URL
 @get('/register')
@@ -285,7 +315,8 @@ async def api_register_user(*, email, name, passwd, key):
     if not passwd or not _RE_SHA1.match(passwd):
         raise APIValueError('passwd')
     if key != _INVITATION_KEY:
-        raise APIError('register:failed','invitation-code','Invalid invitation code')
+        raise APIError('register:failed', 'invitation-code',
+                       'Invalid invitation code')
     users = await User.findAll('email=?', [email])
     if len(users) > 0:
         raise APIError('register:failed', 'email', 'Email is already in use.')
