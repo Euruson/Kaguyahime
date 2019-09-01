@@ -20,14 +20,14 @@ async def logger_factory(app, handler):
 #认证处理工厂--把当前用户绑定到request上，并对URL/manage/进行拦截，检查当前用户是否是管理员身份
 async def auth_factory(app, handler):
     async def auth(request):
-        middlerware_logger.info(
-            'check user: %s %s' % (request.method, request.path))
+        # middlerware_logger.info(
+        #     'check user: %s %s' % (request.method, request.path))
         request.__user__ = None
         cookie_str = request.cookies.get(COOKIE_NAME)
         if cookie_str:
             user = await cookie2user(cookie_str)
             if user:
-                middlerware_logger.info('set current user: %s' % user.email)
+                # middlerware_logger.info('set current user: %s' % user.email)
                 request.__user__ = user
         if request.path.startswith('/manage/') and (request.__user__ is None or
                                                     not request.__user__.admin):

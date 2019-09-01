@@ -4,6 +4,16 @@
 {% block title %}{{ blog.name }}{% endblock %}
 <!--jinja2 beforehead 块内容替换-->
 {% block beforehead %}
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js'></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        config: ["MMLorHTML.js"],
+        jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+        extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+
 <!--script中构建vue,向后端API提交日志评论相关数据-->
 <script>
 
@@ -27,6 +37,13 @@
         });
     });
 </script>
+<style>
+    .toc-active>a {
+        text-decoration: underline !important;
+        font-weight: bold
+    }
+</style>
+<link rel="stylesheet" href="/static/css/markdown.css">
 
 {% endblock %}
 
@@ -37,9 +54,15 @@
     <div class="uk-width-3-4">
         <!--日志内容详情-->
         <article class="uk-article">
-            <h2>{{ blog.name }}</h2>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
-            <p>{{ blog.html_content|safe }}</p>
+            <h2 class="uk-margin-remove-bottom">{{ blog.name }}</h2>
+            {% for tag in blog.tags %}
+            <a class="uk-button uk-button-text" href="/tag/{{ tag.tag.name }}">{{ tag.tag.name }}</a> &nbsp;
+            {% endfor %}
+            <div class="markdown-body uk-margin-small-top">
+                <blockquote><p>{{ blog.summary }}</p></blockquote>
+                {{ blog.html_content|safe }}
+            </div>
+            <p class="uk-article-meta uk-flex uk-flex-right">发表于{{ blog.created_at|datetime }}</p>
         </article>
 
         <hr>
@@ -97,23 +120,21 @@
                                 <fieldset class="uk-fieldset">
                                     <div class="uk-alert uk-alert-danger uk-hidden"></div>
                                     <div class="uk-margin">
-                                        <textarea class="uk-textarea" rows="6" placeholder="说点什么吧"></textarea>
+                                        <textarea id="commet-textarea" class="uk-textarea" rows="6"
+                                            placeholder="说点什么吧"></textarea>
                                     </div>
-
                                 </fieldset>
                             </form>
                         </div>
                     </article>
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+                    <script>
+                        var simplemde = new SimpleMDE({ element: document.getElementById("commet-textarea"), spellChecker: false, autoDownloadFontAwesome: false });
+                    </script>
                     <style>
                         .CodeMirror {
-                            height: 100px;
+                            height: 50px;
                         }
                     </style>
-                    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-                    <script>
-                        var simplemde = new SimpleMDE({ spellChecker: false });
-                    </script>
                 </div>
             </li>
         </ul>
@@ -124,7 +145,9 @@
     </div>
 
     <div class="uk-width-1-4 uk-visible@m">
+        {% if blog.toc %}
         {{ blog.toc|safe }}
+        {% endif %}
     </div>
 </div>
 

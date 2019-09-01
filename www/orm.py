@@ -4,10 +4,11 @@ orm_logger = logging.getLogger("ORM")
 
 
 def log(sql, args):
-    if (args != None):
-        sql = sql % args
-    orm_logger.info('SQL: %s' % sql)
-
+    if (args==None): args = [] 
+    args = list(map(str,args))
+    sql= sql.replace('?','%s')
+    sql = sql % tuple(args)
+    orm_logger.info(sql)
 
 class Field(object):
     def __init__(self, name, column_type, primary_key, default):

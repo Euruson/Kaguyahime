@@ -59,13 +59,15 @@
 <!--jinja2 content 块内容替换-->
 {% block content %}
 <div class="uk-grid">
-	<div class="uk-width-1-1 uk-margin-bottom">
-		<ul class="uk-breadcrumb">
-			<li><a href="/manage/comments">评论</a></li>
-			<li class="uk-active"><span>日志</span></li>
-			<li><a href="/manage/users">用户</a></li>
-		</ul>
-	</div>
+	<nav class="uk-navbar-container uk-width-1-1 uk-navbar-transparent" uk-navbar>
+		<div class="uk-navbar-left">
+			<ul class="uk-subnav uk-subnav-divider">
+				<li><a href="/manage/comments">评论</a></li>
+				<li class="uk-active"><a href="/manage/blogs">日志</a></li>
+				<li><a href="/manage/users">用户</a></li>
+			</ul>
+		</div>
+	</nav>
 
 	<div id="error" class="uk-width-1-1">
 	</div>

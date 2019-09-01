@@ -18,13 +18,16 @@
 
 
 <div class="uk-grid">
-    <div class="uk-width-1-1 uk-margin-bottom">
-        <ul class="uk-breadcrumb">
-            <li><a href="/manage/comments">评论</a></li>
-            <li><a href="/manage/blogs">日志</a></li>
-            <li><a href="/manage/users">用户</a></li>
-        </ul>
-    </div>
+
+    <nav class="uk-navbar-container uk-width-1-1 uk-navbar-transparent" uk-navbar>
+        <div class="uk-navbar-left">
+            <ul class="uk-subnav uk-subnav-divider">
+                <li><a href="/manage/comments">评论</a></li>
+                <li class="uk-active"><a href="/manage/blogs">日志</a></li>
+                <li><a href="/manage/users">用户</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <div id="error" class="uk-width-1-1">
     </div>
@@ -34,7 +37,7 @@
     </div>
 
     <div id="vm" class="uk-width-2-3">
-        <form v-on:submit.prevent=" submit" class="uk-form-stacked">
+        <form v-on:submit.prevent="submit" class="uk-form-stacked">
             <div class="uk-alert uk-alert-danger uk-hidden"></div>
             <div class="uk-margin-top">
                 <label class="uk-form-label">标题:</label>
@@ -42,6 +45,14 @@
                     <input v-model="name" name="name" type="text" placeholder="标题" class="uk-input uk-form-width-large">
                 </div>
             </div>
+
+            <div class="uk-margin-top">
+                <label class="uk-form-label">标签:</label>
+                <tags-input element-id="tags" v-model="selectedTags" :existing-tags="existingTags" :typeahead="true"
+                    :placeholder="'添加标签'"></tags-input>
+            </div>
+
+
             <div class="uk-margin-top">
                 <label class="uk-form-label">摘要:</label>
                 <div class="uk-form-controls">
@@ -52,9 +63,9 @@
             <div class="uk-margin-top">
                 <label class="uk-form-label">内容:</label>
                 <div class="uk-form-controls">
-                    <textarea v-model="content" rows="12" name="content" placeholder="内容" class="uk-textarea"
-                        style="resize:none;"></textarea>
+                    <vue-simplemde v-model="content" :configs='{spellChecker: false, autoDownloadFontAwesome: false}'>
                 </div>
+
             </div>
             <div class="uk-margin-top">
                 <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-save"></i> 保存</button>
@@ -66,46 +77,54 @@
 
 <!--script中构建vue,向后端API提交日志相关数据,包括创建新日志和修改旧日志-->
 <script>
-    function initVM(blog) {
-        var vm = new Vue({
-            el: '#vm',
-            data: blog,
-            methods: {
-                submit: function (event) {
-                    var $form = $('#vm').find('form');
-                    $form.postJSON(action, this.$data, function (err, r) {
-                        if (err) {
-                            $form.showFormError(err);
-                        }
-                        else {
-                            return location.assign('/manage/blogs');
-                        }
-                    });
-                }
+    var vm = new Vue({
+        el: '#vm',
+        data: {
+            name: '',
+            summary: '',
+            content: '',
+            selectedTags: [],
+            existingTags: [],
+        },
+        methods: {
+            submit: function (event) {
+                var $form = $('#vm').find('form');
+                $form.postJSON(action, this.$data, function (err, r) {
+                    if (err) {
+                        $form.showFormError(err);
+                    }
+                    else {
+                        return location.assign('/manage/blogs');
+                    }
+                });
             }
-        });
-        $('#vm').show();
-    }
-
-    $(function () {
-        if (ID) {
-            getJSON('/api/blogs/' + ID, function (err, blog) {
-                if (err) {
-                    return fatal(err);
-                }
-                $('#loading').hide();
-                initVM(blog);
+        },
+        created: function () {
+            getJSON('/api/tags', function (err, r) {
+                r = JSON.parse(JSON.stringify(r).replace(/id/g, "key"));
+                r = JSON.parse(JSON.stringify(r).replace(/name/g, "value"));
+                vm.existingTags = r.tags;
             });
-        }
-        else {
+            if (ID) {
+                getJSON('/api/blog-tag/' + ID, function (err, r) {
+                    if (err) {
+                        return fatal(err);
+                    }
+                    r = JSON.parse(JSON.stringify(r).replace(/id/g, "key"));
+                    r = JSON.parse(JSON.stringify(r).replace(/name/g, "value"));
+                    vm.selectedTags = r.tags;
+                });
+                getJSON('/api/blogs/' + ID, function (err, blog) {
+                    if (err) {
+                        return fatal(err);
+                    }
+                    vm.name = blog.name;
+                    vm.summary = blog.summary;
+                    vm.content = blog.content;
+                });
+            }
             $('#loading').hide();
-            initVM({
-                name: '',
-                summary: '',
-                content: ''
-            });
         }
     });
-
 </script>
 {% endblock %}

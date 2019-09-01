@@ -56,22 +56,20 @@ def text2html(text):
 def toc_parser(toc_tokens):
     html = ''
     for token in toc_tokens:
-        html += '<li><a href="#%s">%s</a></li>' % (token['id'], token['name'])
+        html += '<li><a href="#%s">%s</a>' % (token['id'], token['name'])
         if (token['children']):
-            if (token['level'] == 1):
-                html = html + '<ul class="uk-nav-sub tm-nav">' + toc_parser(
-                    token['children']) + '</ul>'
-            else:
-                html = html + '<ul class="tm-nav">' + toc_parser(
-                    token['children']) + '</ul>'
+            html = html + '<ul class="uk-nav-sub">' + toc_parser(
+                token['children']) + '</ul>'
+        html += '</li>'
     return html
 
 
 def toc_helper(toc_tokens):
-    return '<div uk-sticky="offset: 200" class="toc"> 文章目录<br> Table of Contents<br><br>' +\
-    '<ul uk-scrollspy-nav="closest: li; scroll: true; offset: 50; overflow: false" class="uk-nav uk-nav-default tm-nav">'+\
-    toc_parser(toc_tokens) +\
-    '</ul></div>'
+    if toc_tokens:
+        return '<div uk-sticky="offset: 200" class="toc"> 文章目录<br> Table of Contents<br><br>' +\
+        '<ul  class="uk-nav uk-nav-default" uk-scrollspy-nav="closest: li; scroll: true; offset: 100; cls: toc-active">'+\
+        toc_parser(toc_tokens) +\
+        '</ul></div>'
 
 
 ## 解密cookie
@@ -111,8 +109,7 @@ async def index(*, page='1'):
         blogs = await Blog.findAll(
             orderBy='created_at desc', limit=(p.offset, p.limit))
         for blog in blogs:
-            blog_tags = await BlogTag.findAll(
-                where="`blog_id` = '" + blog.id + "'")
+            blog_tags = await BlogTag.findAll("`blog_id`=?", [blog.id])
             blog.tags = []
             for blog_tag in blog_tags:
                 blog.tags.append(
@@ -128,12 +125,59 @@ async def get_blog(id):
     blog = await Blog.find(id)
     comments = await Comment.findAll(
         'blog_id=?', [id], orderBy='created_at desc')
-    for c in comments:
-        c.html_content = markdown.markdown(c.content)
-    md = markdown.Markdown(extensions=['extra', 'toc'])
+
+    # 处理博客和评论markdown渲染
+    md = markdown.Markdown(extensions=['extra', 'toc','mdx_math'])
     blog.html_content = md.convert(blog.content)
     blog.toc = toc_helper(md.toc_tokens)
+    for c in comments:
+        c.html_content = markdown.markdown(c.content)
+
+    #处理博客tag
+    blog_tags = await BlogTag.findAll("`blog_id`=?", [blog.id])
+    blog.tags = []
+    for blog_tag in blog_tags:
+        blog.tags.append(
+            dict(blog_tag=blog_tag, tag=await Tag.find(blog_tag.tag_id)))
+
     return {'__template__': 'blog.html', 'blog': blog, 'comments': comments}
+
+
+# 处理标签页汇总URL
+@get('/tags')
+async def get_all_tags():
+    tags = await Tag.findAll()
+    for tag in tags:
+        tag.num = await BlogTag.findNumber('count(id)', "`tag_id`=?", [tag.id])
+    return {'__template__': 'tags.html', 'tags': tags}
+
+
+# 处理标签页URL
+@get('/tag/{name}')
+async def get_blogs_of_tag(name, *, page='1'):
+    tag = await Tag.findAll("`name`=?", [name])
+    page_index = get_page_index(page)
+    num = await BlogTag.findNumber('count(id)', "`tag_id`=?", [tag[0].id])
+    p = Page(num, page_index)
+    if num == 0:
+        blogs = []
+    else:
+        blogs = []
+        tag_blogs = await BlogTag.findAll(
+            "`tag_id`=?", [tag[0].id], limit=(p.offset, p.limit))
+        for tag_blog in tag_blogs:
+            blogs.append(await (Blog.find(tag_blog.blog_id)))
+        blogs = sorted(blogs, key=lambda x: x.created_at, reverse=True)
+
+        for blog in blogs:
+            blog_tags = await BlogTag.findAll("`blog_id`=?", [blog.id])
+            blog.tags = []
+            for blog_tag in blog_tags:
+                blog.tags.append(
+                    dict(
+                        blog_tag=blog_tag, tag=await
+                        Tag.find(blog_tag.tag_id)))
+    return {'__template__': 'blogs.html', 'page': p, 'blogs': blogs}
 
 
 ## 处理注册页面URL
@@ -362,7 +406,7 @@ async def api_get_blog(*, id):
 
 ## 发表日志API
 @post('/api/blogs')
-async def api_create_blog(request, *, name, summary, content):
+async def api_create_blog(request, *, name, summary, content, selectedTags):
     check_admin(request)
     if not name or not name.strip():
         raise APIValueError('name', 'name cannot be empty.')
@@ -378,14 +422,25 @@ async def api_create_blog(request, *, name, summary, content):
         summary=summary.strip(),
         content=content.strip())
     await blog.save()
+    for selectedTag in selectedTags:
+        if (selectedTag['key']):
+            blog_tag = BlogTag(blog_id=blog.id, tag_id=selectedTag['key'])
+            await blog_tag.save()
+        else:
+            tag = Tag(name=selectedTag['value'])
+            await tag.save()
+            blog_tag = BlogTag(blog_id=blog.id, tag_id=tag.id)
+            await blog_tag.save()
     return blog
 
 
 ## 编辑日志API
 @post('/api/blogs/{id}')
-async def api_update_blog(id, request, *, name, summary, content):
+async def api_update_blog(id, request, *, name, summary, content,
+                          selectedTags):
     check_admin(request)
     blog = await Blog.find(id)
+    blog_tags = await BlogTag.findAll("`blog_id`=?", [id])
     if not name or not name.strip():
         raise APIValueError('name', 'name cannot be empty.')
     if not summary or not summary.strip():
@@ -396,6 +451,41 @@ async def api_update_blog(id, request, *, name, summary, content):
     blog.summary = summary.strip()
     blog.content = content.strip()
     await blog.update()
+
+    # for selectedTag in selectedTags:
+    #     if selectedTag['key']=='':
+    #         tag = Tag(name=selectedTag['value'])
+    #         await tag.save()
+    #         blog_tag = BlogTag(blog_id=blog.id,tag_id=tag.id)
+    #         await blog_tag.save()
+    #         selectedTags.remove(selectedTag)
+
+    for blog_tag in blog_tags:
+        for selectedTag in selectedTags:
+            if blog_tag.id == selectedTag['key']:
+                blog_tags.remove(blog_tag)
+                selectedTags.remove(selectedTag)
+
+    for selectedTag in selectedTags:
+        if (selectedTag['key']):
+            blog_tag = BlogTag(blog_id=blog.id, tag_id=selectedTag['key'])
+            await blog_tag.save()
+        else:
+            tag = Tag(name=selectedTag['value'])
+            await tag.save()
+            blog_tag = BlogTag(blog_id=blog.id, tag_id=tag.id)
+            await blog_tag.save()
+
+    tags = []
+    for blog_tag in blog_tags:
+        tags.append(await Tag.find(blog_tag.tag_id))
+    for tag in tags:
+        if (await BlogTag.findNumber('count(id)', "`tag_id`=?",
+                                     [tag.id])) == 1:
+            await tag.remove()
+    for blog_tag in blog_tags:
+        await blog_tag.remove()
+
     return blog
 
 
@@ -404,6 +494,16 @@ async def api_update_blog(id, request, *, name, summary, content):
 async def api_delete_blog(request, *, id):
     check_admin(request)
     blog = await Blog.find(id)
+    blog_tags = await BlogTag.findAll("`blog_id`=?", [id])
+    tags = []
+    for blog_tag in blog_tags:
+        tags.append(await Tag.find(blog_tag.tag_id))
+    for tag in tags:
+        if (await BlogTag.findNumber('count(id)', "`tag_id`=?",
+                                     [tag.id])) == 1:
+            await tag.remove()
+    for blog_tag in blog_tags:
+        await blog_tag.remove()
     await blog.remove()
     return dict(id=id)
 
@@ -427,3 +527,82 @@ async def api_delete_users(id, request):
             await c.update()
     id = id_buff
     return dict(id=id)
+
+
+# 获取所有Tag名称 API
+@get('/api/tags')
+async def api_get_tags():
+    tags = await Tag.findAll()
+    return dict(tags=tags)
+
+
+# 获取Tag及其文章 API
+@get('/api/tags/{id}')
+async def api_get_tag(*, id):
+    if re.match(r'[0-9a-zA-Z\_]{50}', id):
+        tag = await Tag.findAll("id=?", [id])
+    else:
+        tag = await Tag.findAll("name=?", [id])
+    if tag:
+        tag[0].blogs = list(
+            map(lambda x: x.blog_id, await BlogTag.findAll(
+                "`tag_id`=?", [tag[0].id])))
+    return tag
+
+
+# 删除Tag API
+@post('/api/tags/{id}/delete')
+async def api_delete_tag(request, *, id):
+    check_admin(request)
+    if re.match(r'[0-9a-zA-Z\_]{50}', id):
+        tag = await Tag.findAll("id=?", [id])
+    else:
+        tag = await Tag.findAll("name=?", [id])
+    tag_blogs = BlogTag.findAll("tag_id=?", [tag.id])
+    for tag_blog in tag_blogs:
+        await tag_blog.remove()
+    await tag.remove()
+    return dict(id=id)
+
+
+# 添加TAG API
+@post('/api/tags')
+async def api_create_tag(request, *, name):
+    check_admin(request)
+    if not name or not name.strip():
+        raise APIValueError('name', 'name cannot be empty.')
+    tag = Tag(name=name.strip())
+    await tag.save()
+    return tag
+
+
+# 修改TAG API
+@post('/api/tags/{id}')
+async def api_update_tag(id, request, *, name):
+    check_admin(request)
+    tag = await Tag.find(id)
+    if not name or not name.strip():
+        raise APIValueError('name', 'name cannot be empty.')
+    tag.name = name.strip()
+    await tag.update()
+    return tag
+
+
+# 获取博客TAG API
+@get('/api/blog-tag/{id}')
+async def api_get_blog_tag(*, id):
+    blog_tags = await BlogTag.findAll("`blog_id`=?", [id])
+    tags = []
+    for blog_tag in blog_tags:
+        tags.append(await Tag.find(blog_tag.tag_id))
+    return dict(tags=tags)
+
+
+# 修改博客TAG API
+@post('/api/blog-tag/{id}')
+async def api_update_blog_tag(id, request, *, tags):
+    check_admin(request)
+    blog_tags = await BlogTag.findAll("`blog_id`=?", [id])
+    pre_tags = []
+    for blog_tag in blog_tags:
+        pre_tags.append(await Tag.find(blog_tag.tag_id))

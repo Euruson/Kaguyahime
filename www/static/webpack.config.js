@@ -35,6 +35,24 @@ module.exports = {
 	module: {
 		rules: [
 			{
+                test: /\.(woff|ttf|eot|png|jpg|gif|svg)$/,
+                loader: 'file-loader',
+                options: {
+                    name: './images/[name].[ext]'
+                }
+			},
+			{
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader'
+                    },
+                    {
+                        loader: 'css-loader'
+                    }
+                ]
+            },
+			{
 				test: /\.vue$/,
 				loader: 'vue-loader'
 			},
