@@ -13,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "@voerro/vue-tagsinput": "^2.0.2",
+    "@xkeshi/image-compressor": "^0.5.3",
+    "cropper": "^4.0.0",
     "crypto-js": "^3.1.9-1",
     "glob": "^7.1.4",
     "jquery": "^3.4.1",
@@ -20,6 +22,7 @@
     "uikit": "^3.1.5",
     "vue": "^2.6.10",
     "vue-simplemde": "^1.0.0",
+    "vue-upload-component": "^2.8.20",
     "webpack-cli": "^3.3.5"
   },
   "devDependencies": {

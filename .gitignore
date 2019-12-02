@@ -1,0 +1,7 @@
+.vscode/settings.json
+www/static/node_modules
+dist/
+www/__pycache__
+log/
+fabfile.py
+__pycache__/

@@ -7,7 +7,7 @@ from fabric.api import *
 
 # 服务器登录用户名:
 env.user = 'root'
-env.key_filename = 'D:\翻墙相关\id_rsa'
+env.key_filename = 'D:\\network\id_rsa'
 
 # 服务器地址，可以有多个，依次部署:
 env.hosts = ['104.128.238.64']
