@@ -7,14 +7,17 @@ import SimpleMDE from 'simplemde'
 import VueSimplemde from 'vue-simplemde'
 import Pagination from './component/Pagination.vue'
 import VoerroTagsInput from '@voerro/vue-tagsinput';
+import FileUploader from './component/FileUploader.vue'
 
 import 'simplemde/dist/simplemde.min.css'
 import'uikit/dist/css/uikit.min.css'
 import '@voerro/vue-tagsinput/dist/style.css'
 
+
 Vue.component('pagination',Pagination);
 Vue.component('tags-input',VoerroTagsInput);
 Vue.component('vue-simplemde', VueSimplemde);
+Vue.component('file-uploader', FileUploader);
 
 window.Vue = Vue;
 window.CryptoJS = CryptoJS;
