@@ -141,7 +141,7 @@ async def get_blog(id):
 
     # 处理博客和评论markdown渲染
     md = markdown.Markdown(
-        extensions=["pymdownx.extra", "toc", "mdx_math", "mdx_breakless_lists"],
+        extensions=["pymdownx.extra", "pymdownx.tilde", "toc", "mdx_math", "mdx_breakless_lists"],
         extension_configs={"mdx_math": {"enable_dollar_delimiter": True}},
         tab_length=3,
     )
